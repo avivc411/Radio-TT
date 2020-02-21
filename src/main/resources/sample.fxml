@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Polygon?>
+<?import javafx.scene.shape.Rectangle?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <children>
+      <SplitPane dividerPositions="0.730188679245283" layoutX="268.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="532.0">
+        <items>
+            <ScrollPane prefHeight="598.0" prefWidth="403.0">
+               <content>
+                  <TableView fx:id="presetsView" prefHeight="596.0" prefWidth="382.0">
+                    <columns>
+                      <TableColumn editable="false" maxWidth="210.39996033906937" minWidth="-1.0" prefWidth="114.40002137422562" resizable="false" />
+                      <TableColumn prefWidth="201.6000518798828" />
+                        <TableColumn prefWidth="158.4000244140625" />
+                    </columns>
+                  </TableView>
+               </content></ScrollPane>
+            <Pane prefHeight="596.0" prefWidth="453.0">
+               <children>
+                  <Button fx:id="presetsBtn" layoutX="21.0" layoutY="85.0" mnemonicParsing="false" onAction="#showPresets" prefHeight="72.0" prefWidth="98.0" />
+                  <Button fx:id="favoritesBtn" layoutX="21.0" layoutY="188.0" mnemonicParsing="false" onAction="#showFavorites" prefHeight="72.0" prefWidth="98.0" />
+               </children>
+            </Pane>
+        </items>
+      </SplitPane>
+      <Pane layoutY="1.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="598.0" prefWidth="262.0">
+         <children>
+            <ImageView fx:id="coverImg" fitHeight="215.0" fitWidth="209.0" layoutX="21.0" layoutY="29.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" />
+            <Slider fx:id="volumeSlider" layoutX="73.0" layoutY="255.0" onMouseReleased="#changeVolume" prefHeight="30.0" prefWidth="164.0" />
+            <Polygon fx:id="playIcon" fill="#060607" layoutX="83.0" layoutY="219.0" onMouseClicked="#playPause" points="-50.0, 40.0, -31.599987030029297, 51.399993896484375, -50.0000114440918, 61.0" stroke="BLACK" strokeType="INSIDE" />
+            <Rectangle fx:id="pauseIcon1" arcHeight="5.0" arcWidth="5.0" height="22.0" layoutX="38.0" layoutY="259.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="5.0" />
+            <Rectangle fx:id="pauseIcon2" arcHeight="5.0" arcWidth="5.0" height="22.0" layoutX="31.0" layoutY="259.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="5.0" />
+            <Rectangle fx:id="pauseRectangle" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="21.0" layoutX="27.0" layoutY="259.0" onMouseClicked="#playPause" opacity="0.0" stroke="WHITE" strokeType="INSIDE" visible="false" width="27.0" />
+         </children>
+      </Pane>
+   </children>
+</Pane>
