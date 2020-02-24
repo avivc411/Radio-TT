@@ -12,7 +12,8 @@ public class Station {
         this.name = name;
         this.streamUrl = streamUrl;
         try{
-            this.img = new Image(imgUrl, 140, 120, true, true);
+            this.img = new Image(imgUrl, 120, 80, true, true);
+            //this.img = new Image(imgUrl);
         }catch (Exception e){
             this.img = null;
         }

@@ -1,30 +1,39 @@
 package sample;
 
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 
 import java.io.*;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * TODO: choose and create local folder for the project (installation file)
+ * TODO: save favorites to a local file
+ * TODO: string properties are gibberish
+ * TODO: add language button
+ * TODO: build default string properties file (english only)
+ * TODO: add more stations
+ * TODO: set volume option
+ */
 public class Controller implements Initializable {
     //a list of all supported stations
-    private List<Station> stations = new LinkedList<>();
-    private static List<Station> favoriteStations = new LinkedList<>();
-    private Dictionary<String, String> stringProperties = new Hashtable<>();
+    private static final List<Station> stations = new LinkedList<>();
+    private static final List<Station> favoriteStations = new LinkedList<>();
+    private static final Dictionary<String, String> stringProperties = new Hashtable<>();
     private boolean playing = false;
-    private Station currentStation;
+    private Station currentStation = null;
     private IPlayer radioPlayer = new RadioPlayer();
 
     @FXML
@@ -36,69 +45,73 @@ public class Controller implements Initializable {
     @FXML
     private Slider volumeSlider;
     @FXML
-    private TableView presetsView = new TableView();
+    public GridPane stationsGrid;
     @FXML
-    private Button presetsBtn;
+    private Button stationsBtn;
     @FXML
     private Button favoritesBtn;
 
     /**
-     * building the presets and favorites lists and the string properties map.
+     * Building the presets and favorites lists and the string properties map.
      */
     public Controller() {
-        String basePath = new File("").getAbsolutePath(), pathToProperties, pathToStationsCSV;
-        pathToStationsCSV = basePath.concat("\\src\\main\\resources\\stations info.csv");
-        pathToProperties = basePath.concat("\\src\\main\\resources\\String Properties.csv");
-        buildStationsList(getCSVFileLines(pathToStationsCSV));
-        loadProperties(getCSVFileLines(pathToProperties));
-        loadFavorites();
-    }
-
-    /**
-     * set the relevant strings to visual elements.
-     */
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        presetsBtn.textProperty().setValue(stringProperties.get("presets"));
-        favoritesBtn.textProperty().setValue(stringProperties.get("favorites"));
-        showPresets();
-    }
-
-    /**
-     * extract all CSV file's lines.
-     *
-     * @param location The location of the file to read.
-     * @return a list with all the file's lines.
-     */
-    private List<String> getCSVFileLines(String location) {
         try {
-            File stationsFile = new File(location);
-            FileReader fileReader = new FileReader(stationsFile);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            List<String> lines = new LinkedList<>();
-            bufferedReader.readLine();
-            String line = bufferedReader.readLine();
-            while (line != null) {
-                if (line.contains("\n"))
-                    line = line.substring(0, line.indexOf('\n'));
-                lines.add(line);
-                line = bufferedReader.readLine();
+            loadFromLines(getCSVFileLines("/String Properties.csv"), stringProperties);
+            loadFromLines(getCSVFileLines("/Favorites.csv"), favoriteStations);
+            loadFromLines(getCSVFileLines("/Stations Info.csv"), stations);
+        } catch (Exception e1) {
+            try {
+                loadFromLines(getCSVFileLines("\\String Properties0.csv"), stringProperties);
+                loadFromLines(getCSVFileLines("\\Favorites.csv"), favoriteStations);
+                loadFromLines(getCSVFileLines("\\Stations Info.csv"), stations);
+            } catch (Exception e2) {
+                e1.printStackTrace();
+                e2.printStackTrace();
+                System.exit(-1);
             }
-            bufferedReader.close();
-            fileReader.close();
-            return lines;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
     /**
-     * read stations details from csv lines and populate the stations list
-     *
-     * @param lines line - name, url, logo
+     * Set the relevant strings to visual elements.
      */
-    private void buildStationsList(List<String> lines) {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        stationsBtn.textProperty().setValue(stringProperties.get("presets"));
+        favoritesBtn.textProperty().setValue(stringProperties.get("favorites"));
+        showStations();
+    }
+
+    /**
+     * Extract all CSV file's lines.
+     *
+     * @param location The location of the file to read.
+     * @return A list with all the file's lines.
+     */
+    private List<String> getCSVFileLines(String location) throws IOException {
+        InputStream in = getClass().getResourceAsStream(location);
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+
+        List<String> lines = new LinkedList<>();
+        bufferedReader.readLine();
+        String line = bufferedReader.readLine();
+        while (line != null) {
+            if (line.contains("\n"))
+                line = line.substring(0, line.indexOf('\n'));
+            lines.add(line);
+            line = bufferedReader.readLine();
+        }
+        bufferedReader.close();
+        return lines;
+    }
+
+    /**
+     * Read stations details from csv lines and populate a stations list.
+     *
+     * @param addToList A list to add stations to.
+     * @param lines     A line - name, url, icon.
+     */
+    private void loadFromLines(List<String> lines, List<Station> addToList) {
         if (lines == null || lines.size() == 0)
             return;
         for (String line : lines) {
@@ -108,116 +121,161 @@ public class Controller implements Initializable {
             url = separatedLine[1];
             if (separatedLine.length > 2)
                 img = separatedLine[2];
-            stations.add(new Station(name, url, img));
+            addToList.add(new Station(name, url, img));
         }
     }
 
     /**
-     * read all the string properties from a properties file.
+     * Read all the string properties from a properties file.
      *
-     * @param lines line - key in english, value in preferred language.
+     * @param stringProperties A dictionary - key in english, value in a preferred language.
+     * @param lines            A line - key in english, value in a preferred language.
      */
-    private void loadProperties(List<String> lines) {
+    private void loadFromLines(List<String> lines, Dictionary<String, String> stringProperties) {
         if (lines == null || lines.size() == 0)
             return;
         for (String line : lines) {
             String[] separatedLine = line.split(",");
             String englishKey, value;
             englishKey = separatedLine[0];
-            value = separatedLine[1];
+            if (separatedLine.length < 2)
+                value = englishKey;
+            else value = separatedLine[1];
             stringProperties.put(englishKey, value);
         }
     }
 
-    private void loadFavorites() {
-        //TODO
+    /**
+     * Build the presets list in a grid pane - image, name, star for not\favorite.
+     */
+    public void showStations() {
+        int numOfColumns = 3, numOfRows = stations.size();
+        stationsGrid.setMinSize(350, 60 * numOfRows);
+        for (int i = 0; i < numOfColumns; i++) {
+            ColumnConstraints colConstraints = new ColumnConstraints();
+            colConstraints.setHgrow(Priority.ALWAYS);
+            stationsGrid.getColumnConstraints().add(colConstraints);
+        }
+
+        for (int i = 0; i < numOfRows; i++) {
+            RowConstraints rowConstraints = new RowConstraints();
+            rowConstraints.setVgrow(Priority.ALWAYS);
+            stationsGrid.getRowConstraints().add(rowConstraints);
+        }
+
+        for (int j = 0; j < numOfRows; j++) {
+            stationsGrid.add(createPane(stations.get(j).getImg(), j), 0, j);
+            stationsGrid.add(createPane(stations.get(j).getName(), j), 1, j);
+            stationsGrid.add(createPane(j), 2, j);
+
+        }
     }
 
     /**
-     * build the presets list in a table - image, name, star of is\isn't favorite
-     * sets click listeners to start playing on image and name
-     * sets click listeners to add\remove from favorites on the star
+     * Creating a pane with relevant station's detail.
+     * Add on-click event handler for each cell.
+     *
+     * @param image An image\icon of the station.
+     * @param index The station's index (also the row in the grid).
+     * @return A pane with the relevant detail.
      */
-    //TODO: Station s is not saved in the click events
-    public void showPresets() {
-        TableColumn<Station, Image> column1 = new TableColumn<>();
-        column1.setPrefWidth(150);
-        TableColumn<Station, String> column2 = new TableColumn<>(stringProperties.get("preset"));
-        column2.setPrefWidth(140);
-        TableColumn<Station, Polygon> column3 = new TableColumn<>(stringProperties.get("favorite"));
-        column3.setPrefWidth(90);
-        for (Station s1 : stations) {
-            final Station starStation = new Station(s1.getName(), s1.getStreamUrl(), s1.getImg().impl_getUrl());
-            Polygon star = new Polygon();
+    private Pane createPane(Image image, int index) {
+        StackPane pane = new StackPane();
+        pane.setMinSize(170, 80);
+        ImageView imageView = new ImageView(image);
+        pane.getChildren().add(imageView);
+        StackPane.setAlignment(imageView, Pos.CENTER_LEFT);
+        pane.setOnMouseClicked(e -> play(stations.get(index)));
+        return pane;
+    }
 
-            if (favoriteStations.contains(s1))
-                star.setFill(Color.YELLOW);
-            else
-                star.setFill(Color.WHITE);
-            column3.setCellValueFactory(p -> new SimpleObjectProperty<>(star));
+    /**
+     * Creating a pane with relevant station's detail.
+     * Add on-click event handler for each cell.
+     *
+     * @param name  The name of the station.
+     * @param index The station's index (also the row in the grid).
+     * @return A pane with the relevant detail.
+     */
+    private Pane createPane(String name, int index) {
+        StackPane pane = new StackPane();
+        pane.setMinSize(200, 80);
+        Text text = new Text(name);
+        pane.getChildren().add(text);
+        StackPane.setAlignment(text, Pos.CENTER);
+        pane.setOnMouseClicked(e -> play(stations.get(index)));
+        return pane;
+    }
 
-            star.setOnMouseClicked(event -> {
-                if (favoriteStations.contains(starStation)) {
-                    favoriteStations.remove(starStation);
-                    star.setFill(Color.WHITE);
-                } else {
-                    favoriteStations.add(starStation);
-                    star.setFill(Color.YELLOW);
-                }
-            });
+    /**
+     * Creating pane with relevant station's details.
+     * Add on-click event handler for each cell.
+     * Painting a star for a not\favorite station.
+     *
+     * @param index The station's index (also the row in the grid).
+     * @return A pane with the relevant detail.
+     */
+    private Pane createPane(int index) {
+        Station s = stations.get(index);
 
-            double shs = 5.0;
-            //TODO: replace the star painting
-            star.getPoints().addAll(new Double[]{0.0, shs * 3,
-                    shs * 2, shs * 2,
-                    shs * 3, 0.0,
-                    shs * 4, shs * 2,
-                    shs * 6, shs * 3,
-                    shs * 4, shs * 4,
-                    shs * 3, shs * 6,
-                    shs * 2, shs * 4});
+        StackPane pane = new StackPane();
+        pane.setMinSize(80, 80);
 
-            column1.setCellValueFactory(p -> new SimpleObjectProperty(p.getValue().getImg()));
-            column1.setCellFactory(tc -> {
-                TableCell<Station, Image> cell = new TableCell<Station, Image>() {
-                    @Override
-                    protected void updateItem(Image item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setGraphic(empty ? null : new ImageView(item));
-                    }
-                };
-                cell.setOnMouseClicked(e -> {
-                    if (!cell.isEmpty()) {
-                        play(starStation);
-                    }
-                });
-                return cell;
-            });
+        double xSize = 0.22, ySize = 0.22, xAlign = 0, yAlign = 80;
+        double[] initXPoints = {10, 85, 110, 135, 210, 160,
+                170, 110, 50, 60};
+        double[] initYPoints = {85, 75, 10, 75, 85, 125,
+                190, 150, 190, 125};
 
-            column2.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().getName()));
-            column2.setCellFactory(tc -> {
-                TableCell<Station, String> cell = new TableCell<Station, String>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        setText(empty ? null : item);
-                    }
-                };
-                cell.setOnMouseClicked(e -> {
-                    if (!cell.isEmpty()) {
-                        play(starStation);
-                    }
-                });
-                return cell;
-            });
+        double[] xPoints = setResolutions(initXPoints, xSize, xAlign, yAlign);
+        double[] yPoints = setResolutions(initYPoints, ySize, xAlign, yAlign);
+
+        Canvas canvas = new Canvas(pane.getMinWidth() * 1, pane.getMinHeight() * 1);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setLineWidth(2);
+        if (favoriteStations.contains(s))
+            gc.setFill(Color.GOLD);
+        else
+            gc.setFill(Color.BLACK);
+
+        gc.fillPolygon(xPoints, yPoints, xPoints.length);
+        gc.strokePolygon(xPoints, yPoints, xPoints.length);
+
+        pane.getChildren().add(canvas);
+
+        StackPane.setAlignment(canvas, Pos.CENTER_RIGHT);
+
+        pane.setOnMouseClicked(e -> {
+            if (favoriteStations.contains(s)) {
+                gc.setFill(Color.BLACK);
+                gc.fillPolygon(xPoints, yPoints, xPoints.length);
+                gc.strokePolygon(xPoints, yPoints, xPoints.length);
+                favoriteStations.remove(s);
+            } else {
+                gc.setFill(Color.GOLD);
+                gc.fillPolygon(xPoints, yPoints, xPoints.length);
+                gc.strokePolygon(xPoints, yPoints, xPoints.length);
+                favoriteStations.add(s);
+            }
+        });
+        return pane;
+    }
+
+    /**
+     * Change the star icon size and position.
+     *
+     * @param points X or y points array.
+     * @param size   Multiple the icon's size by size parameter.
+     * @param xAlign Moves the icon on the horizontal axis.
+     * @param yAlign Moves the icon on the vertical axis.
+     * @return A new array of the points after change.
+     */
+    private double[] setResolutions(double[] points, double size, double xAlign, double yAlign) {
+        double[] fixedPoints = new double[points.length];
+        for (int i = 0; i < points.length; i++) {
+            fixedPoints[i] = size * (points[i] + xAlign + yAlign);
         }
-
-        ObservableList<Station> observableStationsList = FXCollections.observableArrayList(stations);
-
-        if (observableStationsList.size() >= 0) {
-            presetsView.setItems(observableStationsList);
-            presetsView.getColumns().setAll(column1, column2, column3);
-        }
+        return fixedPoints;
     }
 
     public void showFavorites() {
@@ -233,10 +291,10 @@ public class Controller implements Initializable {
     }
 
     /**
-     * pause the streaming, make the "pause" icon and the pausing rectangle invisible
+     * Pause the streaming, make the "pause" icon and the pausing rectangle invisible
      * and the "play" icon visible.
      */
-    public void pause() {
+    private void pause() {
         playing = false;
         playIcon.setVisible(true);
         pauseIcon1.setVisible(false);
@@ -246,10 +304,10 @@ public class Controller implements Initializable {
     }
 
     /**
-     * start a streaming, make the "pause" icon and the pausing rectangle visible
+     * Start a streaming, make the "pause" icon and the pausing rectangle visible
      * and the "play" icon invisible.
      */
-    public void play(Station s) {
+    private void play(Station s) {
         if (s == null)
             return;
         playing = true;
@@ -267,10 +325,15 @@ public class Controller implements Initializable {
         double volume = volumeSlider.getValue();
     }
 
+    /**
+     * Save the current favorites list to a file.
+     * The file is csv file with the structure of "name, stream url, image url".
+     */
     public static void saveFavorites() {
         try {
-            System.out.println(Controller.class.getCanonicalName());
-            File file = new File(Controller.class.getCanonicalName());
+            String basePath = new File("").getAbsolutePath(), pathToFavoritesCSV;
+            pathToFavoritesCSV = basePath.concat("\\resources\\Favorites.csv");
+            File file = new File(Controller.class.getResource("/Favorites.csv").getPath());
             FileWriter fileWriter = new FileWriter(file);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
             bufferedWriter.write("station name,stream url,image url");

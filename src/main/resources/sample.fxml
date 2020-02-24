@@ -4,30 +4,28 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.shape.Polygon?>
 <?import javafx.scene.shape.Rectangle?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
       <SplitPane dividerPositions="0.730188679245283" layoutX="268.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="532.0">
         <items>
             <ScrollPane prefHeight="598.0" prefWidth="403.0">
                <content>
-                  <TableView fx:id="presetsView" prefHeight="596.0" prefWidth="382.0">
-                    <columns>
-                      <TableColumn editable="false" maxWidth="210.39996033906937" minWidth="-1.0" prefWidth="114.40002137422562" resizable="false" />
-                      <TableColumn prefWidth="201.6000518798828" />
-                        <TableColumn prefWidth="158.4000244140625" />
-                    </columns>
-                  </TableView>
+                  <GridPane fx:id="stationsGrid" prefHeight="56.0" prefWidth="382.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="292.5999755859375" minWidth="10.0" prefWidth="191.8" />
+                    </columnConstraints>
+                  </GridPane>
                </content></ScrollPane>
             <Pane prefHeight="596.0" prefWidth="453.0">
                <children>
-                  <Button fx:id="presetsBtn" layoutX="21.0" layoutY="85.0" mnemonicParsing="false" onAction="#showPresets" prefHeight="72.0" prefWidth="98.0" />
+                  <Button fx:id="stationsBtn" layoutX="21.0" layoutY="85.0" mnemonicParsing="false" onAction="#showStations" prefHeight="72.0" prefWidth="98.0" />
                   <Button fx:id="favoritesBtn" layoutX="21.0" layoutY="188.0" mnemonicParsing="false" onAction="#showFavorites" prefHeight="72.0" prefWidth="98.0" />
                </children>
             </Pane>

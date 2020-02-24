@@ -1,6 +1,8 @@
 package sample;
 
 import javazoom.jl.decoder.JavaLayerException;
+import javazoom.jl.player.AudioDevice;
+import javazoom.jl.player.JavaSoundAudioDevice;
 import javazoom.jl.player.Player;
 
 import java.net.URL;
@@ -8,6 +10,7 @@ import java.net.URLConnection;
 
 public class RadioPlayer implements IPlayer{
     private Player player;
+    private AudioDevice audioDevice;
 
     public void play(String url){
         pause();
@@ -20,13 +23,12 @@ public class RadioPlayer implements IPlayer{
                 }
             });
 
-            // Connection
             URLConnection urlConnection = new URL(url).openConnection();
-
-            // Connecting
             urlConnection.connect();
 
-            // Playing
+            //audioDevice = new JavaSoundAudioDevice();
+            //audioDevice.write();
+            //player = new Player(urlConnection.getInputStream(), audioDevice);
             player = new Player(urlConnection.getInputStream());
             runningThread.start();
         } catch (Exception e) {
