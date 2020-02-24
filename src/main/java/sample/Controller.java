@@ -14,27 +14,32 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 
+import javax.swing.filechooser.FileSystemView;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
 
 /**
- * TODO: choose and create local folder for the project (installation file)
- * TODO: save favorites to a local file
+ * TODO: eco99 stream not working
  * TODO: string properties are gibberish
- * TODO: add language button
- * TODO: build default string properties file (english only)
+ * TODO: string properties - add properties to change (menu)
  * TODO: add more stations
  * TODO: set volume option
+ * TODO: add preferences+file
  */
 public class Controller implements Initializable {
+    private enum Language {ENGLISH, HEBREW}
     //a list of all supported stations
     private static final List<Station> stations = new LinkedList<>();
     private static final List<Station> favoriteStations = new LinkedList<>();
     private static final Dictionary<String, String> stringProperties = new Hashtable<>();
+
+    //user's Documents\\Radio Touch-Touch\\Favorites.csv
+    private static String pathToFavorites;
     private boolean playing = false;
     private Station currentStation = null;
     private IPlayer radioPlayer = new RadioPlayer();
+    private Language currentLanguage = Language.ENGLISH;
 
     @FXML
     private Shape playIcon, pauseIcon1, pauseIcon2;
@@ -47,23 +52,36 @@ public class Controller implements Initializable {
     @FXML
     public GridPane stationsGrid;
     @FXML
-    private Button stationsBtn;
+    private Button stationsBtn, favoritesBtn;
     @FXML
-    private Button favoritesBtn;
+    public MenuItem englishBtn, hebrewBtn;
 
     /**
      * Building the presets and favorites lists and the string properties map.
      */
     public Controller() {
+        File favoritesFile;
         try {
-            loadFromLines(getCSVFileLines("/String Properties.csv"), stringProperties);
-            loadFromLines(getCSVFileLines("/Favorites.csv"), favoriteStations);
+            loadFromLines(getCSVFileLines("/ENGLISH String Properties.csv"), stringProperties);
             loadFromLines(getCSVFileLines("/Stations Info.csv"), stations);
+            pathToFavorites = FileSystemView.getFileSystemView().getDefaultDirectory().getPath() +
+                    "/Radio Touch-Touch/Favorites.csv";
+            favoritesFile = new File(pathToFavorites);
+            if (favoritesFile.exists())
+                loadFromLines(getCSVFileLines(favoritesFile.getAbsolutePath()), favoriteStations);
+            else
+                favoritesFile.getParentFile().mkdir();
         } catch (Exception e1) {
             try {
-                loadFromLines(getCSVFileLines("\\String Properties0.csv"), stringProperties);
-                loadFromLines(getCSVFileLines("\\Favorites.csv"), favoriteStations);
+                loadFromLines(getCSVFileLines("\\ENGLISH String Properties.csv"), stringProperties);
                 loadFromLines(getCSVFileLines("\\Stations Info.csv"), stations);
+                pathToFavorites = FileSystemView.getFileSystemView().getDefaultDirectory() +
+                        "\\Radio Touch-Touch\\Favorites.csv";
+                favoritesFile = new File(pathToFavorites + "\\Radio Touch-Touch\\Favorites.csv");
+                if (favoritesFile.exists())
+                    loadFromLines(getCSVFileLines(favoritesFile.getAbsolutePath()), favoriteStations);
+                else
+                    favoritesFile.getParentFile().mkdir();
             } catch (Exception e2) {
                 e1.printStackTrace();
                 e2.printStackTrace();
@@ -77,9 +95,25 @@ public class Controller implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        setTextProperties();
+        setLanguagesEventHandlers();
+        showStations();
+    }
+
+    /**
+     * Sets the text of all elements according to chosen language.
+     */
+    private void setTextProperties() {
         stationsBtn.textProperty().setValue(stringProperties.get("presets"));
         favoritesBtn.textProperty().setValue(stringProperties.get("favorites"));
-        showStations();
+    }
+
+    /**
+     * create event handler for languages button in the menu.
+     */
+    private void setLanguagesEventHandlers() {
+        englishBtn.setOnAction(event -> changeLanguage(Language.ENGLISH));
+        hebrewBtn.setOnAction(event -> changeLanguage(Language.HEBREW));
     }
 
     /**
@@ -90,6 +124,8 @@ public class Controller implements Initializable {
      */
     private List<String> getCSVFileLines(String location) throws IOException {
         InputStream in = getClass().getResourceAsStream(location);
+        if (in == null)
+            in = new BufferedInputStream(new FileInputStream(location));
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
 
         List<String> lines = new LinkedList<>();
@@ -331,22 +367,53 @@ public class Controller implements Initializable {
      */
     public static void saveFavorites() {
         try {
-            String basePath = new File("").getAbsolutePath(), pathToFavoritesCSV;
-            pathToFavoritesCSV = basePath.concat("\\resources\\Favorites.csv");
-            File file = new File(Controller.class.getResource("/Favorites.csv").getPath());
-            FileWriter fileWriter = new FileWriter(file);
+            File favoritesFile = new File(pathToFavorites);
+
+            FileWriter fileWriter = new FileWriter(favoritesFile);
+
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
             bufferedWriter.write("station name,stream url,image url");
             bufferedWriter.newLine();
             for (Station s : favoriteStations) {
                 bufferedWriter.write(s.getName() + "," + s.getStreamUrl() + "," + s.getImg().impl_getUrl());
                 bufferedWriter.newLine();
             }
+
             bufferedWriter.flush();
             bufferedWriter.close();
             fileWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Change the element's text according to chosen language.
+     * @param l The chosen language.
+     */
+    private void changeLanguage(Language l) {
+        switch (l) {
+            case ENGLISH:
+                if(currentLanguage == Language.ENGLISH)
+                    return;
+                currentLanguage = Language.ENGLISH;
+                break;
+            case HEBREW:
+                if(currentLanguage == Language.HEBREW)
+                    return;
+                currentLanguage = Language.HEBREW;
+        }
+        try {
+            loadFromLines(getCSVFileLines("/"+currentLanguage+" String Properties.csv"), stringProperties);
+        } catch (IOException e) {
+            try{
+                loadFromLines(getCSVFileLines("\\"+currentLanguage+"String Properties.csv"), stringProperties);
+            } catch (IOException e1) {
+                e.printStackTrace();
+                e1.printStackTrace();
+            }
+        }
+        setTextProperties();
     }
 }
