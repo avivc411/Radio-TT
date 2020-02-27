@@ -28,6 +28,7 @@ import java.util.*;
  */
 public class Controller implements Initializable {
     private enum Language {ENGLISH, HEBREW}
+
     //a list of all supported stations
     private static final List<Station> stations = new LinkedList<>();
     private static final List<Station> favoriteStations = new LinkedList<>();
@@ -43,17 +44,19 @@ public class Controller implements Initializable {
     @FXML
     private Shape playIcon, pauseIcon1, pauseIcon2;
     @FXML
-    public Rectangle pauseRectangle;
+    private Rectangle pauseRectangle;
     @FXML
     private ImageView coverImg;
     @FXML
     private Slider volumeSlider;
     @FXML
-    public GridPane stationsGrid;
+    private GridPane stationsGrid, favoritesGrid;
     @FXML
     private Button stationsBtn, favoritesBtn;
     @FXML
-    public MenuItem englishBtn, hebrewBtn;
+    private MenuItem englishBtn, hebrewBtn;
+    @FXML
+    private Menu fileMenu, preferencesMenu, helpMenu;
 
     /**
      * Building the presets and favorites lists and the string properties map.
@@ -94,7 +97,8 @@ public class Controller implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setTextProperties();
+        if (currentLanguage != Language.ENGLISH)
+            setTextProperties();
         setLanguagesEventHandlers();
         showStations();
         volumeSlider.setValue(volumeSlider.getMax());
@@ -107,6 +111,9 @@ public class Controller implements Initializable {
     private void setTextProperties() {
         stationsBtn.textProperty().setValue(stringProperties.get("presets"));
         favoritesBtn.textProperty().setValue(stringProperties.get("favorites"));
+        fileMenu.textProperty().setValue(stringProperties.get("file"));
+        preferencesMenu.textProperty().setValue(stringProperties.get("preferences"));
+        helpMenu.textProperty().setValue(stringProperties.get("help"));
     }
 
     /**
@@ -185,9 +192,22 @@ public class Controller implements Initializable {
     /**
      * Build the presets list in a grid pane - image, name, star for not\favorite.
      */
-    public void createStationsList() {
+    private void createStationsList(List<Station> stations, GridPane stationsGrid, boolean buildFavorites) {
         int numOfColumns = 3, numOfRows = stations.size();
         stationsGrid.setMinSize(350, 60 * numOfRows);
+        setConstraints(numOfColumns, numOfRows, stationsGrid);
+
+        addPanes(numOfRows, stations, stationsGrid, buildFavorites);
+    }
+
+    /**
+     * Sets the constraints for the stations grids (favorites and regular).
+     *
+     * @param numOfColumns Num of columns in the grid (currently fixed on 3).
+     * @param numOfRows    Num of rows in the grid.
+     * @param stationsGrid Which grid to refer.
+     */
+    private void setConstraints(int numOfColumns, int numOfRows, GridPane stationsGrid) {
         for (int i = 0; i < numOfColumns; i++) {
             ColumnConstraints colConstraints = new ColumnConstraints();
             colConstraints.setHgrow(Priority.ALWAYS);
@@ -199,18 +219,38 @@ public class Controller implements Initializable {
             rowConstraints.setVgrow(Priority.ALWAYS);
             stationsGrid.getRowConstraints().add(rowConstraints);
         }
+    }
 
-        for (int j = 0; j < numOfRows; j++) {
-            stationsGrid.add(createPane(stations.get(j).getImg(), j), 0, j);
-            stationsGrid.add(createPane(stations.get(j).getName(), j), 1, j);
-            stationsGrid.add(createPane(j), 2, j);
+    /**
+     * Add panes to @stationsGrid and set event listener for click on pane's content.
+     *
+     * @param numOfRows      Num of rows in the grid.
+     * @param stations       A list of stations to read details from.
+     * @param stationsGrid   Which grid to refer.
+     * @param buildFavorites A flag for the event listeners creation.
+     */
+    private void addPanes(int numOfRows, List<Station> stations, GridPane stationsGrid, boolean buildFavorites) {
+        for (int j = 0, index; j < numOfRows; j++) {
+            if (buildFavorites)
+                index = Controller.stations.indexOf(stations.get(j));
+            else
+                index = j;
+            stationsGrid.add(createPane(stations.get(j).getImg(), index), 0, j);
+            stationsGrid.add(createPane(stations.get(j).getName(), index), 1, j);
+            stationsGrid.add(createPane(index), 2, j);
         }
     }
 
-    public void showStations(){
-        if(stationsGrid.getChildren().size()==0){
-            createStationsList();
+    /**
+     * Show the stations list.
+     */
+    public void showStations() {
+        //on initialization
+        if (stationsGrid.getChildren().size() == 0) {
+            createStationsList(stations, stationsGrid, false);
         }
+        favoritesGrid.setVisible(false);
+        stationsGrid.setVisible(true);
     }
 
     /**
@@ -299,6 +339,8 @@ public class Controller implements Initializable {
                 gc.strokePolygon(xPoints, yPoints, xPoints.length);
                 favoriteStations.add(s);
             }
+            favoritesGrid.getChildren().clear();
+            createStationsList(favoriteStations, favoritesGrid, true);
         });
         return pane;
     }
@@ -320,16 +362,14 @@ public class Controller implements Initializable {
         return fixedPoints;
     }
 
+    /**
+     * Show the favorites stations.
+     */
     public void showFavorites() {
-        //TODO
-        List<Node> panes = stationsGrid.getChildren();
-        for(int i=0; i<stations.size(); i++){
-            if(!favoriteStations.contains(stations.get(i))){
-                panes.get(i).setVisible(false);
-                panes.get(i+1).setVisible(false);
-                panes.get(i+2).setVisible(false);
-            }
-        }
+        if (favoritesGrid.getChildren().size() == 0)
+            createStationsList(favoriteStations, favoritesGrid, true);
+        favoritesGrid.setVisible(true);
+        stationsGrid.setVisible(false);
     }
 
     public void playPause() {
@@ -407,27 +447,28 @@ public class Controller implements Initializable {
 
     /**
      * Change the element's text according to chosen language.
+     *
      * @param l The chosen language.
      */
     private void changeLanguage(Language l) {
         switch (l) {
             case ENGLISH:
-                if(currentLanguage == Language.ENGLISH)
+                if (currentLanguage == Language.ENGLISH)
                     return;
                 currentLanguage = Language.ENGLISH;
                 break;
             case HEBREW:
-                if(currentLanguage == Language.HEBREW)
+                if (currentLanguage == Language.HEBREW)
                     return;
                 currentLanguage = Language.HEBREW;
         }
         Dictionary<String, String> properties = new Hashtable<>(stringProperties.size());
         try {
-            loadFromLines(getCSVFileLines("/"+currentLanguage+" String Properties.csv"), properties);
+            loadFromLines(getCSVFileLines("/" + currentLanguage + " String Properties.csv"), properties);
             stringProperties = properties;
         } catch (IOException e) {
-            try{
-                loadFromLines(getCSVFileLines("\\"+currentLanguage+"String Properties.csv"), properties);
+            try {
+                loadFromLines(getCSVFileLines("\\" + currentLanguage + "String Properties.csv"), properties);
                 stringProperties = properties;
             } catch (IOException e1) {
                 e.printStackTrace();

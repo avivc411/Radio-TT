@@ -38,8 +38,8 @@
                </content></ScrollPane>
             <Pane prefHeight="596.0" prefWidth="453.0">
                <children>
-                  <Button fx:id="stationsBtn" layoutX="21.0" layoutY="85.0" mnemonicParsing="false" onAction="#showStations" prefHeight="72.0" prefWidth="98.0" />
-                  <Button fx:id="favoritesBtn" layoutX="21.0" layoutY="188.0" mnemonicParsing="false" onAction="#showFavorites" prefHeight="72.0" prefWidth="98.0" />
+                  <Button fx:id="stationsBtn" layoutX="21.0" layoutY="85.0" mnemonicParsing="false" onAction="#showStations" prefHeight="72.0" prefWidth="98.0" text="Stations" />
+                  <Button fx:id="favoritesBtn" layoutX="21.0" layoutY="188.0" mnemonicParsing="false" onAction="#showFavorites" prefHeight="72.0" prefWidth="98.0" text="Favorites" />
                </children>
             </Pane>
         </items>
@@ -56,12 +56,12 @@
       </Pane>
       <MenuBar prefHeight="51.0" prefWidth="800.0">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" text="File" fx:id="fileMenu">
             <items>
               <MenuItem mnemonicParsing="false" text="Close" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Preferences">
+          <Menu mnemonicParsing="false" text="Preferences" fx:id="preferencesMenu">
                <items>
                   <MenuItem mnemonicParsing="false">
                      <graphic>
@@ -75,7 +75,7 @@
                   </MenuItem>
                </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Help">
+          <Menu mnemonicParsing="false" text="Help" fx:id="helpMenu">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />
             </items>
