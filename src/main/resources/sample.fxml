@@ -21,11 +21,20 @@
         <items>
             <ScrollPane prefHeight="598.0" prefWidth="403.0">
                <content>
-                  <GridPane fx:id="stationsGrid" prefHeight="56.0" prefWidth="382.0">
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="292.5999755859375" minWidth="10.0" prefWidth="191.8" />
-                    </columnConstraints>
-                  </GridPane>
+                  <Pane prefHeight="546.0" prefWidth="382.0">
+                     <children>
+                        <GridPane fx:id="stationsGrid" prefHeight="56.0" prefWidth="382.0">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="292.5999755859375" minWidth="10.0" prefWidth="191.8" />
+                          </columnConstraints>
+                        </GridPane>
+                        <GridPane fx:id="favoritesGrid" prefHeight="56.0" prefWidth="382.0" visible="false">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="292.5999755859375" minWidth="10.0" prefWidth="191.8" />
+                           </columnConstraints>
+                        </GridPane>
+                     </children>
+                  </Pane>
                </content></ScrollPane>
             <Pane prefHeight="596.0" prefWidth="453.0">
                <children>

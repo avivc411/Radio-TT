@@ -3,6 +3,7 @@ package sample;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -20,11 +21,9 @@ import java.net.URL;
 import java.util.*;
 
 /**
- * TODO: eco99 stream not working
  * TODO: string properties are gibberish
  * TODO: string properties - add properties to change (menu)
  * TODO: add more stations
- * TODO: set volume option
  * TODO: add preferences+file
  */
 public class Controller implements Initializable {
@@ -32,7 +31,7 @@ public class Controller implements Initializable {
     //a list of all supported stations
     private static final List<Station> stations = new LinkedList<>();
     private static final List<Station> favoriteStations = new LinkedList<>();
-    private static final Dictionary<String, String> stringProperties = new Hashtable<>();
+    private static Dictionary<String, String> stringProperties = new Hashtable<>();
 
     //user's Documents\\Radio Touch-Touch\\Favorites.csv
     private static String pathToFavorites;
@@ -98,6 +97,8 @@ public class Controller implements Initializable {
         setTextProperties();
         setLanguagesEventHandlers();
         showStations();
+        volumeSlider.setValue(volumeSlider.getMax());
+        changeVolume();
     }
 
     /**
@@ -184,7 +185,7 @@ public class Controller implements Initializable {
     /**
      * Build the presets list in a grid pane - image, name, star for not\favorite.
      */
-    public void showStations() {
+    public void createStationsList() {
         int numOfColumns = 3, numOfRows = stations.size();
         stationsGrid.setMinSize(350, 60 * numOfRows);
         for (int i = 0; i < numOfColumns; i++) {
@@ -203,7 +204,12 @@ public class Controller implements Initializable {
             stationsGrid.add(createPane(stations.get(j).getImg(), j), 0, j);
             stationsGrid.add(createPane(stations.get(j).getName(), j), 1, j);
             stationsGrid.add(createPane(j), 2, j);
+        }
+    }
 
+    public void showStations(){
+        if(stationsGrid.getChildren().size()==0){
+            createStationsList();
         }
     }
 
@@ -316,6 +322,14 @@ public class Controller implements Initializable {
 
     public void showFavorites() {
         //TODO
+        List<Node> panes = stationsGrid.getChildren();
+        for(int i=0; i<stations.size(); i++){
+            if(!favoriteStations.contains(stations.get(i))){
+                panes.get(i).setVisible(false);
+                panes.get(i+1).setVisible(false);
+                panes.get(i+2).setVisible(false);
+            }
+        }
     }
 
     public void playPause() {
@@ -356,9 +370,12 @@ public class Controller implements Initializable {
         radioPlayer.play(s.getStreamUrl());
     }
 
+    /**
+     * Sets the volume to the volume slider value.
+     */
     public void changeVolume() {
-        //TODO
         double volume = volumeSlider.getValue();
+        radioPlayer.setVolume(volume);
     }
 
     /**
@@ -367,9 +384,9 @@ public class Controller implements Initializable {
      */
     public static void saveFavorites() {
         try {
-            File favoritesFile = new File(pathToFavorites);
-
-            FileWriter fileWriter = new FileWriter(favoritesFile);
+            FileWriter fileWriter = new FileWriter(pathToFavorites);
+            fileWriter.close();
+            fileWriter = new FileWriter(pathToFavorites);
 
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
@@ -404,11 +421,14 @@ public class Controller implements Initializable {
                     return;
                 currentLanguage = Language.HEBREW;
         }
+        Dictionary<String, String> properties = new Hashtable<>(stringProperties.size());
         try {
-            loadFromLines(getCSVFileLines("/"+currentLanguage+" String Properties.csv"), stringProperties);
+            loadFromLines(getCSVFileLines("/"+currentLanguage+" String Properties.csv"), properties);
+            stringProperties = properties;
         } catch (IOException e) {
             try{
-                loadFromLines(getCSVFileLines("\\"+currentLanguage+"String Properties.csv"), stringProperties);
+                loadFromLines(getCSVFileLines("\\"+currentLanguage+"String Properties.csv"), properties);
+                stringProperties = properties;
             } catch (IOException e1) {
                 e.printStackTrace();
                 e1.printStackTrace();
