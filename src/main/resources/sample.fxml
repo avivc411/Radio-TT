@@ -65,9 +65,9 @@
                <items>
                   <MenuItem mnemonicParsing="false">
                      <graphic>
-                        <SplitMenuButton mnemonicParsing="false" text="Choose Language">
+                        <SplitMenuButton mnemonicParsing="false" text="Choose Language" fx:id="chooseLanguage">
                           <items>
-                            <MenuItem fx:id="englishBtn" mnemonicParsing="false" text="English" />
+                            <MenuItem fx:id="englishBtn" mnemonicParsing="false" text="English"/>
                             <MenuItem fx:id="hebrewBtn" mnemonicParsing="false" text="Hebrew" />
                           </items>
                         </SplitMenuButton>

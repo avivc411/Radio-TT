@@ -57,6 +57,8 @@ public class Controller implements Initializable {
     private MenuItem englishBtn, hebrewBtn;
     @FXML
     private Menu fileMenu, preferencesMenu, helpMenu;
+    @FXML
+    SplitMenuButton chooseLanguage;
 
     /**
      * Building the presets and favorites lists and the string properties map.
@@ -114,6 +116,9 @@ public class Controller implements Initializable {
         fileMenu.textProperty().setValue(stringProperties.get("file"));
         preferencesMenu.textProperty().setValue(stringProperties.get("preferences"));
         helpMenu.textProperty().setValue(stringProperties.get("help"));
+        chooseLanguage.textProperty().setValue(stringProperties.get("choose language"));
+        englishBtn.textProperty().setValue(stringProperties.get("english"));
+        hebrewBtn.textProperty().setValue(stringProperties.get("hebrew"));
     }
 
     /**
