@@ -111,14 +111,14 @@ public class Controller implements Initializable {
      * Sets the text of all elements according to chosen language.
      */
     private void setTextProperties() {
-        stationsBtn.textProperty().setValue(stringProperties.get("presets"));
-        favoritesBtn.textProperty().setValue(stringProperties.get("favorites"));
-        fileMenu.textProperty().setValue(stringProperties.get("file"));
-        preferencesMenu.textProperty().setValue(stringProperties.get("preferences"));
-        helpMenu.textProperty().setValue(stringProperties.get("help"));
-        chooseLanguage.textProperty().setValue(stringProperties.get("choose language"));
-        englishBtn.textProperty().setValue(stringProperties.get("english"));
-        hebrewBtn.textProperty().setValue(stringProperties.get("hebrew"));
+        stationsBtn.textProperty().setValue(stringProperties.get("Station"));
+        favoritesBtn.textProperty().setValue(stringProperties.get("Favorites"));
+        fileMenu.textProperty().setValue(stringProperties.get("File"));
+        preferencesMenu.textProperty().setValue(stringProperties.get("Preferences"));
+        helpMenu.textProperty().setValue(stringProperties.get("Help"));
+        chooseLanguage.textProperty().setValue(stringProperties.get("Choose Language"));
+        englishBtn.textProperty().setValue(stringProperties.get("English"));
+        hebrewBtn.textProperty().setValue(stringProperties.get("Hebrew"));
     }
 
     /**
