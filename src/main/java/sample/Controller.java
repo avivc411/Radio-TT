@@ -22,7 +22,6 @@ import java.util.*;
 
 /**
  * TODO: string properties are gibberish
- * TODO: string properties - add properties to change (menu)
  * TODO: add more stations
  * TODO: add preferences+file
  */
@@ -271,7 +270,7 @@ public class Controller implements Initializable {
         pane.setMinSize(170, 80);
         ImageView imageView = new ImageView(image);
         pane.getChildren().add(imageView);
-        StackPane.setAlignment(imageView, Pos.CENTER_LEFT);
+        StackPane.setAlignment(imageView, Pos.CENTER);
         pane.setOnMouseClicked(e -> play(stations.get(index)));
         return pane;
     }
