@@ -22,7 +22,6 @@ import java.util.*;
 
 /**
  * TODO: string properties are gibberish
- * TODO: add more stations
  * TODO: add preferences+file
  */
 public class Controller implements Initializable {
