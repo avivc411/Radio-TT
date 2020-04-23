@@ -16,7 +16,7 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(url);
         Parent root = fxmlLoader.load();
         //Parent root = FXMLLoader.load();
-        primaryStage.setTitle("Radio-TT");
+        primaryStage.setTitle("Radio TT");
         primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.setResizable(false);
         primaryStage.show();

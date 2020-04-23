@@ -18,11 +18,11 @@
 
 <Pane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
-      <SplitPane dividerPositions="0.730188679245283" layoutX="268.0" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="532.0">
+      <SplitPane fx:id="splitPane" dividerPositions="0.730188679245283" layoutX="268.0" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="532.0">
         <items>
             <ScrollPane prefHeight="598.0" prefWidth="403.0">
                <content>
-                  <Pane prefHeight="546.0" prefWidth="382.0">
+                  <Pane fx:id="stationsPane" maxWidth="382.0" minWidth="382.0" prefHeight="546.0" prefWidth="382.0">
                      <children>
                         <GridPane fx:id="stationsGrid" prefHeight="56.0" prefWidth="382.0">
                           <columnConstraints>
@@ -37,7 +37,7 @@
                      </children>
                   </Pane>
                </content></ScrollPane>
-            <Pane prefHeight="596.0" prefWidth="453.0">
+            <Pane fx:id="stationsButtonsPane" maxWidth="140.0" minWidth="140.0" prefHeight="596.0" prefWidth="453.0">
                <children>
                   <Button fx:id="stationsBtn" layoutX="21.0" layoutY="85.0" mnemonicParsing="false" onAction="#showStations" prefHeight="72.0" prefWidth="98.0" text="Stations" />
                   <Button fx:id="favoritesBtn" layoutX="21.0" layoutY="188.0" mnemonicParsing="false" onAction="#showFavorites" prefHeight="72.0" prefWidth="98.0" text="Favorites" />

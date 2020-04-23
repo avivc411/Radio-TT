@@ -45,7 +45,9 @@ public class Controller implements Initializable {
     private int currentIndex = 0;
 
     @FXML
-    private Pane rootPane, playerPane;
+    private Pane rootPane, playerPane, stationsPane, stationsButtonsPane;
+    @FXML
+    private SplitPane splitPane;
     @FXML
     private Shape playIcon, pauseIcon1, pauseIcon2;
     @FXML
@@ -104,6 +106,11 @@ public class Controller implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        splitPane.setDividerPositions(0.25);
+
+        //Constrain max size of left component:
+        stationsButtonsPane.maxWidthProperty().bind(splitPane.widthProperty().multiply(0.25));
+        stationsPane.maxWidthProperty().bind(splitPane.widthProperty().multiply(0.75));
         if (currentLanguage != Language.ENGLISH)
             setTextProperties();
         setLanguagesEventHandlers();
