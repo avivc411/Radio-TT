@@ -3,12 +3,12 @@ package sample;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -18,11 +18,15 @@ import javafx.scene.text.Text;
 import javax.swing.filechooser.FileSystemView;
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
  * TODO: string properties are gibberish
  * TODO: add preferences+file
+ * TODO: current song playing
+ * TODO: change menu
  */
 public class Controller implements Initializable {
     private enum Language {ENGLISH, HEBREW}
@@ -38,7 +42,10 @@ public class Controller implements Initializable {
     private Station currentStation = null;
     private IPlayer radioPlayer = new RadioPlayer();
     private Language currentLanguage = Language.ENGLISH;
+    private int currentIndex = 0;
 
+    @FXML
+    private Pane rootPane, playerPane;
     @FXML
     private Shape playIcon, pauseIcon1, pauseIcon2;
     @FXML
@@ -59,7 +66,7 @@ public class Controller implements Initializable {
     SplitMenuButton chooseLanguage;
 
     /**
-     * Building the presets and favorites lists and the string properties map.
+     * Building the stations and favorites lists and the string properties map.
      */
     public Controller() {
         File favoritesFile;
@@ -106,6 +113,56 @@ public class Controller implements Initializable {
     }
 
     /**
+     * Response to key press.
+     * Space - play\pause.
+     * Add\Subtract (key pad) - next\previous station.
+     * Volume up\down - change volume by 10%.
+     */
+    private void keyPressed(KeyEvent event) {
+        System.out.println(event.getCode());
+        switch (event.getCode()) {
+            case SPACE:
+                playPause();
+                break;
+            case VOLUME_UP:
+                volumeSlider.setValue(volumeSlider.getValue() + volumeSlider.getMax() * 0.1);
+                changeVolume();
+                break;
+            case VOLUME_DOWN:
+                volumeSlider.setValue(volumeSlider.getValue() - volumeSlider.getMax() * 0.1);
+                changeVolume();
+                break;
+            case ADD:
+                currentIndex++;
+                if (favoritesGrid.isVisible())
+                    play(favoriteStations.get(Math.abs(currentIndex % favoriteStations.size())));
+                else
+                    play(stations.get(Math.abs(currentIndex % stations.size())));
+                break;
+            case SUBTRACT:
+                currentIndex--;
+                if (favoritesGrid.isVisible())
+                    play(favoriteStations.get(Math.abs(currentIndex % favoriteStations.size())));
+                else
+                    play(stations.get(Math.abs(currentIndex % stations.size())));
+                break;
+        }
+        event.consume();
+    }
+
+    /**
+     * Sets responses to user clicks events.
+     */
+    public void setKeysHandlers() {
+        rootPane.getScene().addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
+
+        playerPane.setOnScroll(event -> {
+            volumeSlider.setValue(volumeSlider.getValue() + event.getDeltaY() / 4);
+            changeVolume();
+        });
+    }
+
+    /**
      * Sets the text of all elements according to chosen language.
      */
     private void setTextProperties() {
@@ -133,12 +190,32 @@ public class Controller implements Initializable {
      * @param location The location of the file to read.
      * @return A list with all the file's lines.
      */
-    private List<String> getCSVFileLines(String location) throws IOException {
+    private List<String> getCSVFileLines(String location, Charset charset) throws IOException {
         InputStream in = getClass().getResourceAsStream(location);
         if (in == null)
             in = new BufferedInputStream(new FileInputStream(location));
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+        BufferedReader bufferedReader;
 
+        if (charset == null) {
+            bufferedReader = new BufferedReader(new InputStreamReader(in));
+        } else
+            bufferedReader = new BufferedReader(new InputStreamReader(in, charset));
+
+        return getCSVFileLines(bufferedReader);
+    }
+
+    /**
+     * Read file without specify charset.
+     */
+    private List<String> getCSVFileLines(String location) throws IOException {
+        return getCSVFileLines(location, null);
+    }
+
+    /**
+     * @param bufferedReader Reader to use.
+     * @return A list with all the file's lines.
+     */
+    private List<String> getCSVFileLines(BufferedReader bufferedReader) throws IOException {
         List<String> lines = new LinkedList<>();
         bufferedReader.readLine();
         String line = bufferedReader.readLine();
@@ -193,7 +270,7 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Build the presets list in a grid pane - image, name, star for not\favorite.
+     * Build the stations list in a grid pane - image, name, star for not\favorite.
      */
     private void createStationsList(List<Station> stations, GridPane stationsGrid, boolean buildFavorites) {
         int numOfColumns = 3, numOfRows = stations.size();
@@ -270,7 +347,7 @@ public class Controller implements Initializable {
         ImageView imageView = new ImageView(image);
         pane.getChildren().add(imageView);
         StackPane.setAlignment(imageView, Pos.CENTER);
-        pane.setOnMouseClicked(e -> play(stations.get(index)));
+        pane.setOnMouseClicked(e -> play(stations.get(currentIndex = index)));
         return pane;
     }
 
@@ -288,7 +365,7 @@ public class Controller implements Initializable {
         Text text = new Text(name);
         pane.getChildren().add(text);
         StackPane.setAlignment(text, Pos.CENTER);
-        pane.setOnMouseClicked(e -> play(stations.get(index)));
+        pane.setOnMouseClicked(e -> play(stations.get(currentIndex = index)));
         return pane;
     }
 
@@ -454,6 +531,7 @@ public class Controller implements Initializable {
      * @param l The chosen language.
      */
     private void changeLanguage(Language l) {
+        Charset charset = null;
         switch (l) {
             case ENGLISH:
                 if (currentLanguage == Language.ENGLISH)
@@ -464,14 +542,15 @@ public class Controller implements Initializable {
                 if (currentLanguage == Language.HEBREW)
                     return;
                 currentLanguage = Language.HEBREW;
+                charset = StandardCharsets.UTF_16;
         }
         Dictionary<String, String> properties = new Hashtable<>(stringProperties.size());
         try {
-            loadFromLines(getCSVFileLines("/" + currentLanguage + " String Properties.csv"), properties);
+            loadFromLines(getCSVFileLines("/" + currentLanguage + " String Properties.csv", charset), properties);
             stringProperties = properties;
         } catch (IOException e) {
             try {
-                loadFromLines(getCSVFileLines("\\" + currentLanguage + "String Properties.csv"), properties);
+                loadFromLines(getCSVFileLines("\\" + currentLanguage + "String Properties.csv", charset), properties);
                 stringProperties = properties;
             } catch (IOException e1) {
                 e.printStackTrace();

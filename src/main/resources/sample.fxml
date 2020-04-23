@@ -13,9 +13,10 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.shape.Polygon?>
+<?import javafx.scene.shape.Polyline?>
 <?import javafx.scene.shape.Rectangle?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<Pane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
       <SplitPane dividerPositions="0.730188679245283" layoutX="268.0" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="532.0">
         <items>
@@ -44,30 +45,42 @@
             </Pane>
         </items>
       </SplitPane>
-      <Pane layoutY="49.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="262.0">
+      <Pane fx:id="playerPane" layoutY="49.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="262.0">
          <children>
             <ImageView fx:id="coverImg" fitHeight="215.0" fitWidth="209.0" layoutX="21.0" layoutY="29.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" />
-            <Slider fx:id="volumeSlider" layoutX="73.0" layoutY="255.0" onMouseReleased="#changeVolume" prefHeight="30.0" prefWidth="164.0" />
-            <Polygon fx:id="playIcon" fill="#060607" layoutX="83.0" layoutY="219.0" onMouseClicked="#playPause" points="-50.0, 40.0, -31.599987030029297, 51.399993896484375, -50.0000114440918, 61.0" stroke="BLACK" strokeType="INSIDE" />
-            <Rectangle fx:id="pauseIcon1" arcHeight="5.0" arcWidth="5.0" height="22.0" layoutX="38.0" layoutY="259.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="5.0" />
-            <Rectangle fx:id="pauseIcon2" arcHeight="5.0" arcWidth="5.0" height="22.0" layoutX="31.0" layoutY="259.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="5.0" />
-            <Rectangle fx:id="pauseRectangle" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="21.0" layoutX="27.0" layoutY="259.0" onMouseClicked="#playPause" opacity="0.0" stroke="WHITE" strokeType="INSIDE" visible="false" width="27.0" />
+            <Slider fx:id="volumeSlider" layoutX="42.0" layoutY="255.0" onMouseReleased="#changeVolume" prefHeight="30.0" prefWidth="164.0" />
+            <Polygon fx:id="playIcon" fill="#060607" layoutX="174.0" layoutY="254.0" onMouseClicked="#playPause" points="-51.5, 35.0, -34.0, 47.0, -51.5, 58.0" stroke="BLACK" strokeType="INSIDE" />
+            <Pane layoutX="155.0" layoutY="287.0" prefHeight="30.0" prefWidth="27.0">
+               <children>
+                  <Polyline fill="BLACK" layoutX="2.0" layoutY="-35.0" points="0.0, 35.60003662109375, 13.5999755859375, 48.00006103515625, 0.0, 60.0, 0.0, 35.60003662109375" strokeType="INSIDE" />
+                  <Polyline fill="BLACK" layoutX="11.0" layoutY="-35.0" points="0.0, 35.60003662109375, 13.5999755859375, 48.00006103515625, 0.0, 60.0, 0.0, 35.60003662109375" strokeType="INSIDE" />
+               </children>
+            </Pane>
+            <Pane layoutX="84.0" layoutY="286.0" prefHeight="30.0" prefWidth="27.0">
+               <children>
+                  <Polyline fill="BLACK" layoutX="13.0" layoutY="-33.0" points="0.0, 35.60003662109375, -15.0, 48.20001220703125, 0.0, 60.0, 0.0, 35.60003662109375" strokeType="INSIDE" />
+                  <Polyline fill="BLACK" layoutX="23.0" layoutY="-33.0" points="0.0, 35.60003662109375, -15.0, 48.20001220703125, 0.0, 60.0, 0.0, 35.60003662109375" strokeType="INSIDE" />
+               </children>
+            </Pane>
+            <Rectangle fx:id="pauseIcon2" arcHeight="5.0" arcWidth="5.0" height="21.0" layoutX="132.0" layoutY="290.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="5.0" />
+            <Rectangle fx:id="pauseIcon1" arcHeight="5.0" arcWidth="5.0" height="21.0" layoutX="125.0" layoutY="290.0" stroke="BLACK" strokeType="INSIDE" visible="false" width="5.0" />
+            <Rectangle fx:id="pauseRectangle" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="30.0" layoutX="111.0" layoutY="286.0" onMouseClicked="#playPause" opacity="0.0" stroke="WHITE" strokeType="INSIDE" visible="false" width="27.0" />
          </children>
       </Pane>
       <MenuBar prefHeight="51.0" prefWidth="800.0">
         <menus>
-          <Menu mnemonicParsing="false" text="File" fx:id="fileMenu">
+          <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
             <items>
               <MenuItem mnemonicParsing="false" text="Close" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Preferences" fx:id="preferencesMenu">
+          <Menu fx:id="preferencesMenu" mnemonicParsing="false" text="Preferences">
                <items>
                   <MenuItem mnemonicParsing="false">
                      <graphic>
-                        <SplitMenuButton mnemonicParsing="false" text="Choose Language" fx:id="chooseLanguage">
+                        <SplitMenuButton fx:id="chooseLanguage" mnemonicParsing="false" text="Choose Language">
                           <items>
-                            <MenuItem fx:id="englishBtn" mnemonicParsing="false" text="English"/>
+                            <MenuItem fx:id="englishBtn" mnemonicParsing="false" text="English" />
                             <MenuItem fx:id="hebrewBtn" mnemonicParsing="false" text="Hebrew" />
                           </items>
                         </SplitMenuButton>
@@ -75,7 +88,7 @@
                   </MenuItem>
                </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Help" fx:id="helpMenu">
+          <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />
             </items>
