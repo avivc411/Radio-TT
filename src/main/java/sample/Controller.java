@@ -45,9 +45,7 @@ public class Controller implements Initializable {
     private int currentIndex = 0;
 
     @FXML
-    private Pane rootPane, playerPane, stationsPane, stationsButtonsPane;
-    @FXML
-    private SplitPane splitPane;
+    private Pane rootPane, playerPane, stationsPane;
     @FXML
     private Shape playIcon, pauseIcon1, pauseIcon2;
     @FXML
@@ -106,11 +104,6 @@ public class Controller implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        splitPane.setDividerPositions(0.25);
-
-        //Constrain max size of left component:
-        stationsButtonsPane.maxWidthProperty().bind(splitPane.widthProperty().multiply(0.25));
-        stationsPane.maxWidthProperty().bind(splitPane.widthProperty().multiply(0.75));
         if (currentLanguage != Language.ENGLISH)
             setTextProperties();
         setLanguagesEventHandlers();
@@ -126,7 +119,6 @@ public class Controller implements Initializable {
      * Volume up\down - change volume by 10%.
      */
     private void keyPressed(KeyEvent event) {
-        System.out.println(event.getCode());
         switch (event.getCode()) {
             case SPACE:
                 playPause();
@@ -140,21 +132,28 @@ public class Controller implements Initializable {
                 changeVolume();
                 break;
             case ADD:
-                currentIndex++;
-                if (favoritesGrid.isVisible())
-                    play(favoriteStations.get(Math.abs(currentIndex % favoriteStations.size())));
-                else
-                    play(stations.get(Math.abs(currentIndex % stations.size())));
-                break;
+                playNextStation();
             case SUBTRACT:
-                currentIndex--;
-                if (favoritesGrid.isVisible())
-                    play(favoriteStations.get(Math.abs(currentIndex % favoriteStations.size())));
-                else
-                    play(stations.get(Math.abs(currentIndex % stations.size())));
+                playPrevStation();
                 break;
         }
         event.consume();
+    }
+
+    public void playNextStation(){
+        currentIndex++;
+        if (favoritesGrid.isVisible())
+            play(favoriteStations.get(Math.abs(currentIndex % favoriteStations.size())));
+        else
+            play(stations.get(Math.abs(currentIndex % stations.size())));
+    }
+
+    public void playPrevStation(){
+        currentIndex--;
+        if (favoritesGrid.isVisible())
+            play(favoriteStations.get(Math.abs(currentIndex % favoriteStations.size())));
+        else
+            play(stations.get(Math.abs(currentIndex % stations.size())));
     }
 
     /**
@@ -164,7 +163,7 @@ public class Controller implements Initializable {
         rootPane.getScene().addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
 
         playerPane.setOnScroll(event -> {
-            volumeSlider.setValue(volumeSlider.getValue() + event.getDeltaY() / 4);
+            volumeSlider.setValue(volumeSlider.getValue() + event.getDeltaY() / 8);
             changeVolume();
         });
     }
