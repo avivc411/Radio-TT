@@ -45,7 +45,7 @@ public class Controller implements Initializable {
     private int currentIndex = 0;
 
     @FXML
-    private Pane rootPane, playerPane, stationsPane;
+    private Pane rootPane, playerPane;
     @FXML
     private Shape playIcon, pauseIcon1, pauseIcon2;
     @FXML
@@ -133,27 +133,12 @@ public class Controller implements Initializable {
                 break;
             case ADD:
                 playNextStation();
+                break;
             case SUBTRACT:
                 playPrevStation();
                 break;
         }
         event.consume();
-    }
-
-    public void playNextStation(){
-        currentIndex++;
-        if (favoritesGrid.isVisible())
-            play(favoriteStations.get(Math.abs(currentIndex % favoriteStations.size())));
-        else
-            play(stations.get(Math.abs(currentIndex % stations.size())));
-    }
-
-    public void playPrevStation(){
-        currentIndex--;
-        if (favoritesGrid.isVisible())
-            play(favoriteStations.get(Math.abs(currentIndex % favoriteStations.size())));
-        else
-            play(stations.get(Math.abs(currentIndex % stations.size())));
     }
 
     /**
@@ -494,6 +479,25 @@ public class Controller implements Initializable {
         coverImg.setImage(s.getImg());
         currentStation = s;
         radioPlayer.play(s.getStreamUrl());
+    }
+
+    public void playNextStation(){
+        currentIndex++;
+        if (favoritesGrid.isVisible())
+            play(favoriteStations.get(Math.abs(currentIndex % favoriteStations.size())));
+        else
+            play(stations.get(Math.abs(currentIndex % stations.size())));
+    }
+
+    public void playPrevStation(){
+        if (favoritesGrid.isVisible()) {
+            currentIndex = (--currentIndex<0 ? favoriteStations.size() : currentIndex);
+            play(favoriteStations.get(Math.abs(currentIndex % favoriteStations.size())));
+        }
+        else {
+            currentIndex = (--currentIndex<0 ? stations.size() : currentIndex);
+            play(stations.get(Math.abs(currentIndex % stations.size())));
+        }
     }
 
     /**
